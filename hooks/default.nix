@@ -22,7 +22,7 @@ in
             inherit pythonInterpreter;
             yj = "${buildPackages.yj}/bin/yj";
             pyprojectPatchScript = "${./pyproject-without-special-deps.py}";
-            fields = [ "path" ];
+            fields = [ "path" "develop" ];
             kind = "path";
           };
         } ./remove-special-dependencies.sh
