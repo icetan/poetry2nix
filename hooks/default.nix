@@ -34,7 +34,7 @@ let
 in
 {
   removePathDependenciesHook = makeRemoveSpecialDependenciesHook {
-    fields = [ "path" ];
+    fields = [ "path" "develop" ];
     kind = "path";
   };
 
