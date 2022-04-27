@@ -285,7 +285,7 @@ lib.makeScope pkgs.newScope (self: {
       # Automatically add dependencies with develop = true as editable packages, but only if path dependencies
       getEditableDeps = set: lib.mapAttrs
         (name: value: projectDir + "/${value.path}")
-        (lib.filterAttrs (name: dep: dep.develop or false && hasAttr "path" dep) set);
+        (lib.filterAttrs (name: dep: dep ? path && dep ? develop && dep.develop) set);
 
       excludedEditablePackageNames = builtins.filter
         (pkg: editablePackageSources."${pkg}" == null)
@@ -309,7 +309,7 @@ lib.makeScope pkgs.newScope (self: {
       inherit (poetryPython) poetryPackages;
 
       # Don't add editable sources to the environment since they will sometimes fail to build and are not useful in the development env
-      editableAttrs = lib.attrNames editablePackageSources';
+      editableAttrs = map moduleName (lib.attrNames editablePackageSources');
       envPkgs = builtins.filter (drv: ! lib.elem (drv.pname or drv.name or "") editableAttrs) poetryPackages;
 
     in
