@@ -148,6 +148,7 @@ lib.makeScope pkgs.newScope (self: {
     , groups ? [ ]
     , checkGroups ? [ "dev" ]
     , extras ? [ "*" ]
+    , filterLock ? (_: true)
     }:
     let
       /* The default list of poetry2nix override overlays */
@@ -172,9 +173,12 @@ lib.makeScope pkgs.newScope (self: {
         editablePackageSources = editablePackageSources';
       };
 
-      poetryLock = readTOML poetrylock;
-
       # Lock file version 1.1 files
+      poetryLock = let
+        lock = readTOML poetrylock;
+      in
+        lock // { package = builtins.filter filterLock lock.package; };
+
       lockFiles =
         let
           lockfiles = lib.getAttrFromPath [ "metadata" "files" ] poetryLock;
@@ -321,6 +325,7 @@ lib.makeScope pkgs.newScope (self: {
     , extraPackages ? ps: [ ]
     , groups ? [ "dev" ]
     , extras ? [ "*" ]
+    , filterLock ? (_: true)
     }:
     let
       inherit (lib) hasAttr;
@@ -354,6 +359,7 @@ lib.makeScope pkgs.newScope (self: {
 
       poetryPython = self.mkPoetryPackages {
         inherit pyproject poetrylock overrides python pwd preferWheels pyProject groups extras;
+        inherit filterLock;
         editablePackageSources = editablePackageSources';
       };
 
@@ -389,11 +395,13 @@ lib.makeScope pkgs.newScope (self: {
     , groups ? [ ]
     , checkGroups ? [ "dev" ]
     , extras ? [ "*" ]
+    , filterLock ? (_: true)
     , ...
     }@attrs:
     let
       poetryPython = self.mkPoetryPackages {
         inherit pyproject poetrylock overrides python pwd preferWheels groups checkGroups extras;
+        inherit filterLock;
       };
       py = poetryPython.python;
 
@@ -407,6 +415,7 @@ lib.makeScope pkgs.newScope (self: {
         "pwd"
         "pyproject"
         "preferWheels"
+        "filterLock"
       ];
       passedAttrs = builtins.removeAttrs attrs specialAttrs;
 
